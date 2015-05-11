@@ -1,0 +1,71 @@
+'use strict';
+
+var _webPushConfig = {
+  debug: DEBUG_VAR
+};
+
+importScripts('DEXIE_PATH');
+
+var dDB;
+
+function getDb() {
+  if (!dDB) {
+    dDB = new Dexie("sample-storSe");
+    dDB.version(1).stores({
+        pushData: 'tag,url',
+    });
+  dDB.open();
+  }
+  return dDB;
+}
+
+self.addEventListener('install', function(evt) {
+    
+    evt.waitUntil(self.skipWaiting());
+    if (_webPushConfig.debug) console.log("The ServiceWorker was installed.");
+});
+
+self.addEventListener('activate', function(evt) {
+    if (_webPushConfig.debug) console.log("The ServiceWorker was activated.");
+});
+
+self.addEventListener('push', function(event) {
+  if (_webPushConfig.debug) console.log('Received a new push message', event);
+
+  event.waitUntil(self.registration.pushManager.getSubscription().then(function(subscription) {
+      return fetch('SUB_PATH'+ subscription.subscriptionId).then(function(response) {  
+          return response.json().then(function(json) {
+                  var promises = [];
+                   for (var i = 0; i < json.notifications.length; i++) {
+                    var single_notification = json.notifications[i];
+                    
+                    if (_webPushConfig.debug) console.log("Showing notification: " + single_notification.body);
+                    getDb().pushData.put({ tag: single_notification.tag, url: single_notification.url});
+                    promises.push(showNotification(single_notification.title, single_notification.body, single_notification.url, single_notification.tag));
+                }
+              return Promise.all(promises);
+          });
+      });
+  }));
+
+});
+
+self.addEventListener('notificationclick', function(event) {
+  if (_webPushConfig.debug) console.log('Notification clicked: ', event);
+
+    event.notification.close();
+    event.waitUntil(getDb().pushData.get(event.notification.tag).then (function(push_data){
+      if (_webPushConfig.debug) console.log(push_data);
+        return clients.openWindow(push_data.url).focus();
+    }));
+
+});
+
+function showNotification(title, body, image, tag) {
+    var options = {
+        body: body,
+        tag: tag,
+        icon: 'ICON_PATH'
+    };
+    return self.registration.showNotification(title, options);
+}
