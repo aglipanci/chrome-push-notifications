@@ -39,6 +39,7 @@
 <h2>Chrome Web Push Settings</h2>
 
 <?php
+
 if(isset($_POST) && isset($_POST['wp_chrome_settings']) && wp_verify_nonce($_POST['wp_chrome_settings'], 'wp_chrome_settings' )) {
     if(isset($_POST['web_push_project_number']) && !empty($_POST['web_push_project_number']) && is_numeric($_POST['web_push_project_number'])) {
         update_option('web_push_project_number', sanitize_text_field($_POST['web_push_project_number']));

@@ -35,6 +35,7 @@ self.addEventListener('push', function(event) {
   event.waitUntil(self.registration.pushManager.getSubscription().then(function(subscription) {
       return fetch('SUB_PATH'+ subscription.subscriptionId).then(function(response) {  
           return response.json().then(function(json) {
+          	if (_webPushConfig.debug) console.log('Push data received', json);
                   var promises = [];
                    for (var i = 0; i < json.notifications.length; i++) {
                     var single_notification = json.notifications[i];

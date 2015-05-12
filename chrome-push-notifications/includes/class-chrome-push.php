@@ -33,7 +33,9 @@ class WPChromePush {
 		add_action( 'wp_ajax_pn_register_device', array($this, 'registerDevice') );
 		add_action(	'wp_head', array($this, 'manifestFile') );
 
-		if(!$this->checkSSL()) add_action( 'admin_notices', array($this, 'checkSiteConfigNotice'));
+		if(!$this->checkSSL()) {
+			add_action( 'admin_notices', array($this, 'checkSiteConfigNotice'));
+		}
 
 	}
 
@@ -51,8 +53,8 @@ class WPChromePush {
 	 */
 	public static function writeServiceWorker() {
 		$tmp_sw = file_get_contents(CHROME_PUSH_PLUGIN_DIR . 'assets/js/tmp/sw.js.tmp');
-	    $tmp_sw = str_replace('DEXIE_PATH', CHROME_PUSH_PLUGIN_URL . 'assets/js/library/Dexie.min.js', $tmp_sw);
-	    $tmp_sw = str_replace('SUB_PATH', get_site_url() . '?regId=', $tmp_sw);
+	    $tmp_sw = str_replace('DEXIE_PATH', self::fixHttpsURL(CHROME_PUSH_PLUGIN_URL) . 'assets/js/library/Dexie.min.js', $tmp_sw);
+	    $tmp_sw = str_replace('SUB_PATH', get_option('siteurl') . '/?subId=', $tmp_sw);
 	    $tmp_sw = str_replace('ICON_PATH', get_option('web_push_icon'), $tmp_sw);
 	    $tmp_sw = str_replace('DEBUG_VAR', true, $tmp_sw);
 	    $form_url = 'admin.php?page=chrome-push';
@@ -244,11 +246,11 @@ class WPChromePush {
 	 */
 	public function registerPushJs() {
 	  	
-		wp_register_script( 'web-push', CHROME_PUSH_PLUGIN_URL . 'assets/js/push.js', array('jquery'), '1.0', true);
+		wp_register_script( 'web-push',$this->fixHttpsURL(CHROME_PUSH_PLUGIN_URL) . 'assets/js/push.js', array('jquery'), '1.0', true);
 
 		$data = array(
-			'sw_path' => get_site_url() . '/sw.js',
-			'reg_url' => get_site_url() . '?regId=',
+			'sw_path' => get_option('siteurl') . '/sw.js',
+			'reg_url' => get_option('siteurl') . '/?regId=',
 			'ajaxurl' => admin_url('admin-ajax.php'),
 			'debug'   => get_option('web_push_debuger') ? true : false
 		);
@@ -451,7 +453,21 @@ class WPChromePush {
 	 * @return void
 	 */
 	public function checkSSL() {
-		return strpos(get_site_url(), 'https');
+		return strpos(get_option('siteurl'), 'https://') !== false;
+	}
+
+	/**
+	 * Fix http to https
+	 * @param  [type] $url [description]
+	 * @return [type]      [description]
+	 */
+	public static function fixHttpsURL($url) {
+		// only fix if source URL starts with http://
+		if (stripos($url, 'http://') === 0) {
+			$url = str_replace('http://', 'https://', $url) ;
+		}
+
+		return $url;
 	}
 
 	/**
