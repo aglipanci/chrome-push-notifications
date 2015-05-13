@@ -3,7 +3,7 @@
 Plugin Name: Chrome Push Notifications
 Plugin URI: http://www.github.com/aglipanci
 Description: Chrome Push Notifications GCM
-Version: 1.0.2
+Version: 1.0.5
 Author: Agli Panci
 Author URI: http://www.aglipanci.com/
 */
@@ -16,7 +16,7 @@ if ( ! defined( 'CHROME_PUSH_PLUGIN_URL' ) ) {
     define( 'CHROME_PUSH_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 }
 
-require_once( plugin_dir_path( __FILE__ ) . 'includes/class-chrome-push.php' );
+require_once( CHROME_PUSH_PLUGIN_DIR . 'includes/class-chrome-push.php' );
 
 register_activation_hook( __FILE__, array( 'WPChromePush', 'installFunctions' ));
 

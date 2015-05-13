@@ -340,12 +340,15 @@ class WPChromePush {
 	    
 	    $this->putNotificationOnQueue($data);
 
-		$options = get_option('gcm_setting');
 	    $apiKey = get_option('web_push_api_key');
 	    $url = 'https://android.googleapis.com/gcm/send';
 	    $id = $this->getClientIds();
-		
-		if($id >= 1000) {
+			
+		if(empty($id)) {
+			return 'No subscribers on your site yet!';
+		}
+
+		if(count($id) >= 1000) {
 			$newId = array_chunk($id, 1000);
 			foreach ($newId as $inner_id) {
 				$fields = array(
@@ -377,8 +380,8 @@ class WPChromePush {
 	    	curl_setopt( $ch, CURLOPT_POST, true );
 	    	curl_setopt( $ch, CURLOPT_HTTPHEADER, $headers);
 	    	curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
-	    	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-			curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode( $fields ));
+	    	curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, false);
+			curl_setopt( $ch, CURLOPT_POSTFIELDS, json_encode( $fields ));
 			$result = curl_exec($ch);
 		}
 	    
@@ -434,12 +437,16 @@ class WPChromePush {
 	 * Registration hook 
 	 * @return void
 	 */
-	public function installFunctions() {
+	public static function installFunctions() {
 		self::writeServiceWorker();
 		self::dbInstall();
 	}
 
 
+	/**
+	 * Https requirement Notice
+	 * @return void
+	 */
 	public function checkSiteConfigNotice() {
 	    ?>
 	    <div class="error">
@@ -458,13 +465,12 @@ class WPChromePush {
 
 	/**
 	 * Fix http to https
-	 * @param  [type] $url [description]
-	 * @return [type]      [description]
+	 * @param  string $url
+	 * @return string
 	 */
 	public static function fixHttpsURL($url) {
-		// only fix if source URL starts with http://
 		if (stripos($url, 'http://') === 0) {
-			$url = str_replace('http://', 'https://', $url) ;
+			$url = str_replace('http://', 'https://', $url);
 		}
 
 		return $url;
