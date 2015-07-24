@@ -19,6 +19,7 @@ if ( ! defined( 'CHROME_PUSH_PLUGIN_URL' ) ) {
 require_once( CHROME_PUSH_PLUGIN_DIR . 'includes/class-chrome-push.php' );
 
 register_activation_hook( __FILE__, array( 'WPChromePush', 'installFunctions' ));
+//add_action( 'plugins_loaded', array( 'WPChromePush', 'installFunctions' ));
 
 //start the plugin
 WPChromePush::init();

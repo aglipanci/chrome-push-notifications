@@ -74,10 +74,11 @@ window.addEventListener('load', function() {
   }
 
   function sendSubscriptionToServer(data){
-
+    console.log('SubscriptionId');
+    console.log(data.endpoint);
     var data = {
       'action': 'pn_register_device',
-      'regId': data.subscriptionId
+      'regId': data.endpoint
     };
     if(_webPushConfig.debug) console.log('Sending data to server: ');
     if(_webPushConfig.debug) console.log(data);

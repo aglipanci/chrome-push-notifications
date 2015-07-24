@@ -32,6 +32,8 @@ class WPChromePush {
 		add_action( 'wp_ajax_nopriv_pn_register_device', array($this, 'registerDevice') );
 		add_action( 'wp_ajax_pn_register_device', array($this, 'registerDevice') );
 		add_action(	'wp_head', array($this, 'manifestFile') );
+		add_action( 'add_meta_boxes', array($this, 'addMetaBox') );
+
 
 		if(!$this->checkSSL()) {
 			add_action( 'admin_notices', array($this, 'checkSiteConfigNotice'));
@@ -70,6 +72,7 @@ class WPChromePush {
 		add_menu_page('Chrome Web Push', 'Chrome Push', 'manage_options', 'chrome-push', array($this, 'registerSettingsPage'),'dashicons-cloud');
 			add_submenu_page( 'chrome-push', 'Settings', 'Settings', 'manage_options', 'chrome-push', array($this, 'registerSettingsPage'));
 			add_submenu_page( 'chrome-push', 'New message', 'New message', 'manage_options', 'chrome-push-new-message', array($this, 'composePush'));  
+			add_submenu_page( 'chrome-push', 'Statistics', 'Statistics', 'manage_options', 'chrome-push-new-statistics', array($this, 'statistics'));  
 	}
 
 	/**
@@ -120,7 +123,8 @@ class WPChromePush {
 	  	if (isset($_POST["regId"]) && !empty($_POST['regId'])) {
 		    
 			global $wpdb;   
-			$regId = sanitize_text_field($_POST["regId"]);
+			$endpoint = sanitize_text_field($_POST["regId"]);
+			$regId = end(explode('/', $endpoint));
 			$time = date("Y-m-d H:i:s");   
 			$subscribers_table = $wpdb->prefix.'push_subscribers';
 			$sql = "SELECT gcm_regid FROM $subscribers_table WHERE gcm_regid='$regId'";
@@ -401,16 +405,19 @@ class WPChromePush {
 
 		if(($old_status != $new_status && $new_status == 'publish') || ($old_status == 'future' && $new_status == 'publish'))
 		{
-			$selected_post_types = get_option('web_push_post_types');
-			if(is_array($selected_post_types) && in_array($post->post_type, $selected_post_types)) {
-		        $data = array(
-		            'title' => $post->post_title,
-		            'message' => substr($post->post_content, 0, 20),
-		            'url' => get_permalink( $post->ID )
-		        );
+			if(isset($_POST['chrome_push_confirm']) && !empty($_POST['chrome_push_confirm']) && !empty($post->post_title) && !empty($post->post_content)) {
 
-				$this->sendGCM($data);
-			}
+				$selected_post_types = get_option('web_push_post_types');
+				if(is_array($selected_post_types) && in_array($post->post_type, $selected_post_types)) {
+			        $data = array(
+			            'title' => $post->post_title,
+			            'message' => substr(wp_strip_all_tags(strip_shortcodes($post->post_content)), 0, 20),
+			            'url' => get_permalink( $post->ID )
+			        );
+
+					$this->sendGCM($data);
+				}
+			} 
 			
 		}
 
@@ -464,6 +471,34 @@ class WPChromePush {
 	}
 
 	/**
+	 * The function to add Metabox in posts
+	 */
+	public function addMetaBox() {
+
+		$screens = get_option('web_push_post_types');
+
+		foreach ( $screens as $screen ) {
+
+			add_meta_box(
+				'smartpocket_push',
+				'Chrome Push Notifications',
+				array($this, 'metaboxCallback'),
+				$screen,
+				'side',
+	        	'high'
+			);
+		}
+	}
+
+	/**
+	 * The meta box callback function
+	 * @return void
+	 */
+	public function metaboxCallback() {
+		echo '<input type="checkbox" id="chrome_push_confirm" name="smartpocket_push_confirm" value="yes" checked="checked"> Send push notification ';
+	}
+
+	/**
 	 * Fix http to https
 	 * @param  string $url
 	 * @return string
@@ -509,6 +544,7 @@ class WPChromePush {
 	        $sql = "CREATE TABLE " . $push_notifications_table . " (
 	        `id` int(11) NOT NULL AUTO_INCREMENT,
 	        `notification` text,
+	        `hits` int(11) DEFAULT 0,
 	        `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	        PRIMARY KEY (`id`)
 	        );";

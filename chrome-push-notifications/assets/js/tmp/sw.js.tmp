@@ -10,7 +10,7 @@ var dDB;
 
 function getDb() {
   if (!dDB) {
-    dDB = new Dexie("sample-storSe");
+    dDB = new Dexie("chrome-push-notifications");
     dDB.version(1).stores({
         pushData: 'tag,url',
     });
@@ -39,7 +39,13 @@ self.addEventListener('push', function(event) {
                   var promises = [];
                    for (var i = 0; i < json.notifications.length; i++) {
                     var single_notification = json.notifications[i];
-                    
+
+                    if(!single_notification.title)
+                        single_notification.title = 'New Notification!';
+
+                    if(!single_notification.body)
+                        single_notification.body = '';
+
                     if (_webPushConfig.debug) console.log("Showing notification: " + single_notification.body);
                     getDb().pushData.put({ tag: single_notification.tag, url: single_notification.url});
                     promises.push(showNotification(single_notification.title, single_notification.body, single_notification.url, single_notification.tag));
@@ -57,6 +63,7 @@ self.addEventListener('notificationclick', function(event) {
     event.notification.close();
     event.waitUntil(getDb().pushData.get(event.notification.tag).then (function(push_data){
       if (_webPushConfig.debug) console.log(push_data);
+        getDb().pushData.delete();
         return clients.openWindow(push_data.url).focus();
     }));
 
