@@ -45,7 +45,7 @@ if(isset($_POST) && isset($_POST['wp_chrome_settings']) && wp_verify_nonce($_POS
         update_option('web_push_project_number', sanitize_text_field($_POST['web_push_project_number']));
         $form_url = 'admin.php?page=chrome-push';
 
-        $manifest_file = '{"gcm_sender_id": "'.get_option('web_push_project_number').'", "gcm_user_visible_only": true}';
+        $manifest_file = '{"gcm_sender_id": "'.get_option('web_push_project_number').'"}';
         WPChromePush::writeFile($form_url, $manifest_file, 'manifest.json');
     }
 

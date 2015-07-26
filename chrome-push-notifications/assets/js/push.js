@@ -58,7 +58,7 @@ window.addEventListener('load', function() {
   function subscribe(){
     if(_webPushConfig.debug) console.warn('Subscription started.');
     navigator.serviceWorker.ready.then(function(serviceWorkerRegistration) {  
-      serviceWorkerRegistration.pushManager.subscribe()  
+      serviceWorkerRegistration.pushManager.subscribe({userVisibleOnly: true})  
         .then(function(subscription) {  
           if(_webPushConfig.debug) console.warn('Before sending data to server..');
           return sendSubscriptionToServer(subscription);  
@@ -74,14 +74,15 @@ window.addEventListener('load', function() {
   }
 
   function sendSubscriptionToServer(data){
-    console.log('SubscriptionId');
-    console.log(data.endpoint);
+
     var data = {
       'action': 'pn_register_device',
       'regId': data.endpoint
     };
+
     if(_webPushConfig.debug) console.log('Sending data to server: ');
     if(_webPushConfig.debug) console.log(data);
+    
     jQuery.post(pn_vars.ajaxurl, data, function(response) {
       console.log(response);
     });

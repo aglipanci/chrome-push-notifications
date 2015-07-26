@@ -71,8 +71,9 @@ class WPChromePush {
 	public function registerMenues() {
 		add_menu_page('Chrome Web Push', 'Chrome Push', 'manage_options', 'chrome-push', array($this, 'registerSettingsPage'),'dashicons-cloud');
 			add_submenu_page( 'chrome-push', 'Settings', 'Settings', 'manage_options', 'chrome-push', array($this, 'registerSettingsPage'));
+			add_submenu_page( 'chrome-push', 'Subscribers', 'Subscribers', 'manage_options', 'chrome-push-subscribers', array($this, 'subscriptionStatistics'));  
+			add_submenu_page( 'chrome-push', 'Notifications', 'Notifications', 'manage_options', 'chrome-push-notifications', array($this, 'notificationStatistics'));  
 			add_submenu_page( 'chrome-push', 'New message', 'New message', 'manage_options', 'chrome-push-new-message', array($this, 'composePush'));  
-			add_submenu_page( 'chrome-push', 'Statistics', 'Statistics', 'manage_options', 'chrome-push-new-statistics', array($this, 'statistics'));  
 	}
 
 	/**
@@ -123,8 +124,8 @@ class WPChromePush {
 	  	if (isset($_POST["regId"]) && !empty($_POST['regId'])) {
 		    
 			global $wpdb;   
-			$endpoint = sanitize_text_field($_POST["regId"]);
-			$regId = end(explode('/', $endpoint));
+			$endpoint = explode('/', sanitize_text_field($_POST["regId"]));
+			$regId = end($endpoint);
 			$time = date("Y-m-d H:i:s");   
 			$subscribers_table = $wpdb->prefix.'push_subscribers';
 			$sql = "SELECT gcm_regid FROM $subscribers_table WHERE gcm_regid='$regId'";
@@ -430,6 +431,67 @@ class WPChromePush {
 	public function registerSettingsPage() {
 		wp_enqueue_media();
 		include_once CHROME_PUSH_PLUGIN_DIR . 'views/admin/web-push-settings.php';
+	}
+
+	/**
+	 * Register Notifications Statistics
+	 * @return void
+	 */
+	public function notificationStatistics() {
+
+		global $wpdb;
+		$push_notifications_table = $wpdb->prefix . 'push_notifications';
+
+		$pagenum = isset( $_GET['pagenum'] ) ? absint( $_GET['pagenum'] ) : 1;
+		
+		$limit = 10;
+		$offset = ( $pagenum - 1 ) * $limit;
+		$total = $wpdb->get_var( 'SELECT COUNT(`id`) FROM '. $push_notifications_table );
+		$num_of_pages = ceil( $total / $limit );
+
+	    $notifications = $wpdb->get_results('SELECT * FROM '. $push_notifications_table .' LIMIT ' . $offset . ', ' . $limit);
+
+	    $page_links = paginate_links( array(
+		    'base' => add_query_arg( 'pagenum', '%#%' ),
+		    'format' => '',
+		    'prev_text' => '&laquo;',
+		    'next_text' => '&raquo;',
+		    'total' => $num_of_pages,
+		    'current' => $pagenum
+		) );
+
+		include_once CHROME_PUSH_PLUGIN_DIR . 'views/admin/web-push-notifics-statistics.php';
+	}
+
+	/**
+	 * Register Notifications Statistics
+	 * @return void
+	 */
+	public function subscriptionStatistics() {
+
+		global $wpdb;
+		$push_subscribers_table = $wpdb->prefix . 'push_subscribers';
+
+		$pagenum = isset( $_GET['pagenum'] ) ? absint( $_GET['pagenum'] ) : 1;
+		
+		$limit = 2;
+		$offset = ( $pagenum - 1 ) * $limit;
+		$total = $wpdb->get_var( 'SELECT COUNT(`id`) FROM '. $push_subscribers_table );
+		$num_of_pages = ceil( $total / $limit );
+
+		$subscribers = $wpdb->get_results('SELECT * FROM '. $push_subscribers_table .' LIMIT ' . $offset . ', ' . $limit);
+
+	    $page_links = paginate_links( array(
+		    'base' => add_query_arg( 'pagenum', '%#%' ),
+		    'format' => '',
+		    'prev_text' => '&laquo;',
+		    'next_text' => '&raquo;',
+		    'total' => $num_of_pages,
+		    'current' => $pagenum
+		) );
+
+
+		include_once CHROME_PUSH_PLUGIN_DIR . 'views/admin/web-push-subs-statistics.php';
 	}
 
 	/**
