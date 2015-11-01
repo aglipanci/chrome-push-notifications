@@ -31,7 +31,6 @@ Comming soon:
 - User statistics
 - Notifications statistics
 
-
 Demo URL: https://www.aglipanci.com
 
 
@@ -39,11 +38,18 @@ Demo URL: https://www.aglipanci.com
 
 Requirements:
 
-- A valid SSL certificate so your website can be accessed through HTTPS (even a free one from cloudflare.com will do the work)
+- A valid SSL certificate so your website can be accessed through HTTPS (even a free one from cloudflare.com will do the work). Check this guide to configure the Flexible SSL by Cloudflare: https://wordpresscheat.com/wordpress-cloudflare-flexible-ssl-guide/
 
 - Chrome 42+ (Desktop & Android)
 
 Installation:
+
+How to Install and Configure the Plugin
+
+[youtube https://www.youtube.com/watch?v=yHzz3Ui2yS4]
+
+
+Follow this steps:
 
 1. Install the Chrome Push Notifications Plug-in 
 
@@ -70,6 +76,16 @@ Not working? drop me an email to agli [dot] panci [at] GMAIL [dot] com
 
 == Frequently Asked Questions ==
 
+= Is the Push Notification is send even when the user is not navigating in the page? =
+
+Yes! If the user accepts to receive Push Notifications for your website, the push notications will apear even when he is not in the page.
+
+= Does this plugin uses some extra service backend? =
+
+Nope! Everything is inside the plugin, using the CGM service by Google.
+
+= Where can i report issues with the plugin? =
+
 Please report issues to the GIT repository
 
 Go to: https://github.com/aglipanci/chrome-push-notifications
@@ -79,6 +95,12 @@ Go to: https://github.com/aglipanci/chrome-push-notifications
 No screenshots available.
 
 == Changelog ==
+
+= 1.1.1 =
+* Notifications Hits fix
+
+= 1.1 =
+* MAJOR UPDATE (CHROME API CHANGES)
 
 = 1.0 =
 * Post types configurations

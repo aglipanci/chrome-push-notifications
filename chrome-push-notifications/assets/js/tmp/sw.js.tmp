@@ -33,7 +33,8 @@ self.addEventListener('push', function(event) {
   if (_webPushConfig.debug) console.log('Received a new push message', event);
 
   event.waitUntil(self.registration.pushManager.getSubscription().then(function(subscription) {
-      return fetch('SUB_PATH'+ subscription.subscriptionId).then(function(response) {  
+   if (_webPushConfig.debug) console.log('Push sub data', subscription);
+      return fetch('SUB_PATH'+ subscription.endpoint).then(function(response) {  
           return response.json().then(function(json) {
           	if (_webPushConfig.debug) console.log('Push data received', json);
                   var promises = [];
