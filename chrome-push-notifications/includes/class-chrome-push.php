@@ -444,7 +444,7 @@ class WPChromePush
                 if (is_array($selected_post_types) && in_array($post->post_type, $selected_post_types)) {
                     $data = array(
                         'title' => $post->post_title,
-                        'message' => substr(wp_strip_all_tags(strip_shortcodes($post->post_content)), 0, 20),
+                        'message' => mb_substr(wp_strip_all_tags(strip_shortcodes($post->post_content)), 0, 120),
                         'url' => get_permalink($post->ID),
                     );
 
@@ -596,7 +596,7 @@ class WPChromePush
      */
     public function metaboxCallback()
     {
-        echo '<input type="checkbox" id="chrome_push_confirm" name="smartpocket_push_confirm" value="yes" checked="checked"> Send push notification ';
+        echo '<input type="checkbox" id="chrome_push_confirm" name="chrome_push_confirm" value="yes" checked="checked"> Send push notification ';
     }
 
     /**
