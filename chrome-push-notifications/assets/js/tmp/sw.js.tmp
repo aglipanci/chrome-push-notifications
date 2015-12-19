@@ -34,7 +34,7 @@ self.addEventListener('push', function(event) {
 
   event.waitUntil(self.registration.pushManager.getSubscription().then(function(subscription) {
    if (_webPushConfig.debug) console.log('Push sub data', subscription);
-      return fetch('SUB_PATH'+ subscription.endpoint).then(function(response) {  
+      return fetch('SUB_PATH'+ encodeURIComponent(subscription.endpoint)).then(function(response) {  
           return response.json().then(function(json) {
           	if (_webPushConfig.debug) console.log('Push data received', json);
                   var promises = [];

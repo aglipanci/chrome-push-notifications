@@ -135,7 +135,7 @@ class WPChromePush
         if (isset($_POST["regId"]) && !empty($_POST['regId'])) {
 
             global $wpdb;
-            $endpoint = explode('/', sanitize_text_field($_POST["regId"]));
+            $endpoint = explode('/', sanitize_text_field(rawurldecode($_POST["regId"])));
             $regId = end($endpoint);
             $time = date("Y-m-d H:i:s");
             $subscribers_table = $wpdb->prefix . 'push_subscribers';
@@ -164,7 +164,7 @@ class WPChromePush
         if (isset($_GET['subId']) && !empty($_GET['subId'])) {
 
             global $wpdb;
-            $endpoint = explode('/', sanitize_text_field($_GET["subId"]));
+            $endpoint = explode('/', sanitize_text_field(rawurldecode($_GET["subId"])));
             $subscriber_id = end($endpoint);
             $push_subscribers_table = $wpdb->prefix . 'push_subscribers';
             $push_notifications_table = $wpdb->prefix . 'push_notifications';

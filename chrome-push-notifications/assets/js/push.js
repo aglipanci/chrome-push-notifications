@@ -77,7 +77,7 @@ window.addEventListener('load', function() {
 
     var data = {
       'action': 'pn_register_device',
-      'regId': data.endpoint
+      'regId': encodeURIComponent(data.endpoint)
     };
 
     if(_webPushConfig.debug) console.log('Sending data to server: ');
