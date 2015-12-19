@@ -580,7 +580,7 @@ class WPChromePush
         foreach ($screens as $screen) {
 
             add_meta_box(
-                'smartpocket_push',
+                'chrome_push',
                 'Chrome Push Notifications',
                 array($this, 'metaboxCallback'),
                 $screen,
