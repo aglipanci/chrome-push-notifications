@@ -53,7 +53,7 @@ class WPChromePush
      */
     public function manifestFile()
     {
-        echo '<link rel="manifest" href="manifest.json">';
+        echo '<link rel="manifest" href="/manifest.json">';
     }
 
     /**
