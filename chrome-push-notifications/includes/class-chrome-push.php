@@ -53,7 +53,7 @@ class WPChromePush
      */
     public function manifestFile()
     {
-        echo '<link rel="manifest" href="manifest.json">';
+        echo '<link rel="manifest" href="/manifest.json">';
     }
 
     /**
@@ -64,7 +64,7 @@ class WPChromePush
     {
         $tmp_sw = file_get_contents(CHROME_PUSH_PLUGIN_DIR . 'assets/js/tmp/sw.js.tmp');
         $tmp_sw = str_replace('DEXIE_PATH', self::fixHttpsURL(CHROME_PUSH_PLUGIN_URL) . 'assets/js/library/Dexie.min.js', $tmp_sw);
-        $tmp_sw = str_replace('SUB_PATH', get_option('siteurl') . '/?subId=', $tmp_sw);
+        $tmp_sw = str_replace('SUB_PATH', get_option('home') . '/?subId=', $tmp_sw);
         $tmp_sw = str_replace('ICON_PATH', get_option('web_push_icon'), $tmp_sw);
         $tmp_sw = str_replace('DEBUG_VAR', true, $tmp_sw);
         $form_url = 'admin.php?page=chrome-push';
@@ -222,7 +222,7 @@ class WPChromePush
         //check_admin_referer('web_push');
 
         $method = '';
-        $context = ABSPATH;
+        $context = home_url('/');
 
         //$form_url = wp_nonce_url($form_url, 'web_push'); //page url with nonce value
 
@@ -277,8 +277,8 @@ class WPChromePush
         wp_register_script('web-push', $this->fixHttpsURL(CHROME_PUSH_PLUGIN_URL) . 'assets/js/push.js', array('jquery'), '1.0', true);
 
         $data = array(
-            'sw_path' => get_option('siteurl') . '/sw.js',
-            'reg_url' => get_option('siteurl') . '/?regId=',
+            'sw_path' => get_option('home') . '/sw.js',
+            'reg_url' => get_option('home') . '/?regId=',
             'ajaxurl' => admin_url('admin-ajax.php'),
             'debug' => get_option('web_push_debuger') ? true : false,
         );
@@ -566,7 +566,7 @@ class WPChromePush
      */
     public function checkSSL()
     {
-        return strpos(get_option('siteurl'), 'https://') !== false;
+        return strpos(get_option('home'), 'https://') !== false;
     }
 
     /**
